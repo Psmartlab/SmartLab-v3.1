@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartLab GestorADM — Fluxogramas de Regras</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* ──── Page-break helper ──── */
+    .page {
+      page-break-after: always;
+      padding: 40px 48px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page:last-child { page-break-after: avoid; }
+
+    /* ──── Cover ──── */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b69 100%);
+      color: #fff;
+    }
+    .cover h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .cover .subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 48px;
+    }
+    .cover .desc {
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 500px;
+      opacity: 0.6;
+    }
+    .cover .version {
+      margin-top: 64px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+    .cover .logo-icon {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 900;
+      margin-bottom: 32px;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+
+    /* ──── Section headers ──── */
+    .section-title {
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      color: #0f0f23;
+      border-bottom: 4px solid #0f0f23;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .section-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+    }
+
+    /* ──── Diagram container ──── */
+    .diagram-block {
+      background: #fff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+    .diagram-block h3 {
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .diagram-block .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    .diagram-block .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* ──── Legend / notes ──── */
+    .note-box {
+      background: #f1f5f9;
+      border-left: 4px solid #6366f1;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 16px;
+      color: #334155;
+    }
+    .note-box strong { color: #1e1b4b; }
+
+    /* ──── Permission table ──── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 16px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #0f0f23;
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .perm-yes { color: #16a34a; font-weight: 700; }
+    .perm-no  { color: #dc2626; font-weight: 700; }
+
+    /* ──── Print tweaks ──── */
+    @media print {
+      body { background: #fff; }
+      .page { padding: 24px 32px; }
+      .diagram-block { border: 1px solid #ccc; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CAPA
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page cover">
+  <div class="logo-icon">SL</div>
+  <h1>SmartLab<br>GestorADM</h1>
+  <p class="subtitle">Fluxogramas de Regras</p>
+  <p class="desc">
+    Documentação visual completa do sistema de autenticação,
+    controle de acesso (RBAC + Rule Engine), navegação,
+    gerenciamento de tarefas e permissões da aplicação.
+  </p>
+  <p class="version">v3.2 — Secure Access Edition — Março 2026</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 1: AUTENTICAÇÃO E LOGIN
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">1. Fluxo de Autenticação</h2>
+  <p class="section-subtitle">Login via Google OAuth + Whitelist Firestore</p>
+
+  <div class="diagram-block">
+    <h3>Processo de Login do Usuário</h3>
+    <div class="mermaid">
+flowchart TD
+    A["Usuário acessa /login"] --> B{"Já está autenticado?"}
+    B -- Sim --> C["Redireciona para Dashboard /"]
+    B -- Não --> D["Exibe tela de Login"]
+    D --> E{"Tipo de login?"}
+    E -- "Google OAuth" --> F["signInWithPopup - Google"]
+    E -- "Demo" --> G["Mock Login: Admin / Gerente / User"]
+    G --> H["Salva no localStorage"]
+    H --> C
+
+    F --> I["onAuthStateChanged dispara"]
+    I --> J{"Email existe na coleção 'users' do Firestore?"}
+    J -- Não --> K["❌ Acesso Negado: Email não cadastrado"]
+    K --> L["signOut + exibe erro"]
+    L --> D
+
+    J -- Sim --> M{"Conta bloqueada? (status == 'blocked')"}
+    M -- Sim --> N["❌ Conta Bloqueada"]
+    N --> L
+
+    M -- Não --> O{"Licença expirada? (expiresAt < now)"}
+    O -- Sim --> P["❌ Licença Expirada"]
+    P --> L
+
+    O -- Não --> Q["✅ Acesso Permitido"]
+    Q --> R["Vincula UID ao doc do Firestore"]
+    R --> S["Atualiza: name, photo, lastLogin"]
+    S --> T["Define user state com role do Firestore"]
+    T --> C
+
+    style K fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style N fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style P fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style Q fill:#dcfce7,stroke:#16a34a,color:#14532d
+    </div>
+
+    <div class="note-box">
+      <strong>Whitelist:</strong> Apenas e-mails pré-cadastrados na coleção <code>users</code> do Firestore são aceitos.<br>
+      <strong>Validações em cascata:</strong> Email cadastrado → Conta não bloqueada → Licença válida → Acesso liberado.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 2: SISTEMA ACL (RBAC + RULE ENGINE)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">2. Sistema de Controle de Acesso (ACL)</h2>
+  <p class="section-subtitle">Avaliação em 2 fases: RBAC estático + Rule Engine dinâmico</p>
+
+  <div class="diagram-block">
+    <h3>Fluxo de Decisão ACL</h3>
+    <div class="mermaid">
+flowchart TD
+    A["Requisição de Acesso<br>(canAccessScreen / can)"] --> B["Fase 1: RBAC"]
+    B --> C{"rolePermissions[permKey][role] == true?"}
+    C -- Sim --> D["RBAC = ALLOW"]
+    C -- Não/Indefinido --> E["RBAC = DENY"]
+
+    D --> F["Fase 2: Rule Engine"]
+    E --> F
+
+    F --> G["Carrega regras ativas da coleção 'rules/'"]
+    G --> H["Ordena por priority ASC (menor = maior prioridade)"]
+    H --> I["Itera regras em ordem"]
+
+    I --> J{"Regra i: Condições batem?"}
+    J -- Não --> K{"Mais regras?"}
+    K -- Sim --> I
+    K -- Não --> L["Resultado: NEUTRAL"]
+
+    J -- Sim --> M{"action.type da regra?"}
+    M -- allow --> N["Resultado: ALLOW"]
+    M -- deny --> O["Resultado: DENY"]
+    M -- neutral --> L
+
+    N --> P["🔓 DECISÃO FINAL: PERMITIDO<br>(Rule Engine sobrescreve RBAC)"]
+    O --> Q["🔒 DECISÃO FINAL: NEGADO<br>(Rule Engine sobrescreve RBAC)"]
+    L --> R{"RBAC result?"}
+    R -- ALLOW --> S["🔓 DECISÃO FINAL: PERMITIDO<br>(Pelo RBAC)"]
+    R -- DENY --> T["🔒 DECISÃO FINAL: NEGADO<br>(Pelo RBAC)"]
+
+    style P fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style S fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style Q fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style T fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    </div>
+
+    <div class="note-box">
+      <strong>Prioridade final:</strong> Rule Engine (Fase 2) sobrescreve o RBAC (Fase 1).<br>
+      Se Rule Engine retorna <code>neutral</code>, o resultado do RBAC prevalece.<br>
+      <strong>Regras dinâmicas:</strong> Armazenadas no Firestore, atualizadas em tempo real via <code>onSnapshot</code>.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 3: RULE ENGINE — AVALIAÇÃO INTERNA
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">3. Rule Engine — Motor de Regras</h2>
+  <p class="section-subtitle">Avaliação detalhada de condições e operadores</p>
+
+  <div class="diagram-block">
+    <h3>Processo de Avaliação de Uma Regra</h3>
+    <div class="mermaid">
+flowchart TD
+    A["evaluateRules recebe: rules[] + context"] --> B["Filtra regras com active == true"]
+    B --> C["Ordena por priority ASC"]
+    C --> D["Para cada regra na ordem:"]
+
+    D --> E["evaluateRule: Avaliar condições"]
+    E --> F{"Tem condições definidas?"}
+    F -- Não --> G["matched = false (skip)"]
+    F -- Sim --> H{"conditionType?"}
+
+    H -- AND --> I["TODAS as condições devem ser true"]
+    H -- OR --> J["ALGUMA condição deve ser true"]
+
+    I --> K["Avalia cada condição via evaluateCondition"]
+    J --> K
+
+    K --> L{"Condição matched?"}
+    L -- Sim --> M["Retorna: decision = action.type<br>(allow / deny / neutral)"]
+    L -- Não --> N{"Próxima regra?"}
+    N -- Sim --> D
+    N -- Não --> O["Retorna: decision = neutral<br>(nenhuma regra bateu)"]
+
+    style M fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    style O fill:#f1f5f9,stroke:#94a3b8,color:#475569
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>Operadores Suportados nas Condições</h3>
+    <table>
+      <tr>
+        <th>Operador</th>
+        <th>Descrição</th>
+        <th>Exemplo de Uso</th>
+      </tr>
+      <tr><td><code>==</code></td><td>Igual</td><td>user.role == "Admin"</td></tr>
+      <tr><td><code>!=</code></td><td>Diferente</td><td>user.role != "User"</td></tr>
+      <tr><td><code>in</code></td><td>Valor está na lista</td><td>user.role in ["Admin","Gerente"]</td></tr>
+      <tr><td><code>not_in</code></td><td>Valor não está na lista</td><td>user.uid not_in ["blocked-uid"]</td></tr>
+      <tr><td><code>includes</code></td><td>Array contém valor</td><td>user.teams includes "team-123"</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td><td>Comparação numérica</td><td>task.priority &gt; 2</td></tr>
+      <tr><td><code>starts_with</code></td><td>String começa com</td><td>screen starts_with "screen:"</td></tr>
+      <tr><td><code>exists</code></td><td>Campo existe (não null)</td><td>task.assigneeId exists</td></tr>
+      <tr><td><code>not_exists</code></td><td>Campo não existe</td><td>team.managerId not_exists</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 4: NORMALIZAÇÃO DE ROLES
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">4. Normalização de Roles</h2>
+  <p class="section-subtitle">Mapeamento de role strings para roles canônicos</p>
+
+  <div class="diagram-block">
+    <h3>Fluxo de Normalização</h3>
+    <div class="mermaid">
+flowchart TD
+    A["user.role (entrada)"] --> B{"role.toLowerCase()"}
+    B --> C{"'admin' ou 'administrador'?"}
+    C -- Sim --> D["Role = Admin"]
+    C -- Não --> E{"'gerente', 'manager' ou 'team_manager'?"}
+    E -- Sim --> F["Role = Gerente"]
+    E -- Não --> G["Role = User (padrão)"]
+
+    D --> H["Acesso total ao sistema"]
+    F --> I["Acesso gerencial limitado"]
+    G --> J["Acesso operacional básico"]
+
+    style D fill:#fef3c7,stroke:#f59e0b,color:#92400e
+    style F fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    style G fill:#f1f5f9,stroke:#94a3b8,color:#475569
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>Contexto de Avaliação (EvalContext)</h3>
+    <div class="mermaid">
+flowchart LR
+    CTX["EvalContext"] --> U["user"]
+    CTX --> SC["screen"]
+    CTX --> RT["route"]
+    CTX --> TK["task"]
+    CTX --> TM["team"]
+
+    U --> U1["uid: string"]
+    U --> U2["email: string"]
+    U --> U3["role: Admin/Gerente/User"]
+    U --> U4["teams: string[]"]
+    U --> U5["projects: string[]"]
+    U --> U6["isDemo: boolean"]
+
+    TK --> TK1["id, status, assigneeId, teamId"]
+    TM --> TM1["id, managerId"]
+    </div>
+
+    <div class="note-box">
+      <strong>Campos acessíveis nas condições:</strong> <code>user.role</code>, <code>user.email</code>, <code>user.teams</code>,
+      <code>screen</code>, <code>route</code>, <code>task.status</code>, <code>task.assigneeId</code>, <code>team.id</code>, etc.<br>
+      O resolver suporta até N níveis de profundidade via dot-notation.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 5: NAVEGAÇÃO E PROTEÇÃO DE ROTAS
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">5. Navegação e Proteção de Rotas</h2>
+  <p class="section-subtitle">ProtectedRoute + Screen Registry</p>
+
+  <div class="diagram-block">
+    <h3>Fluxo de Acesso a Telas</h3>
+    <div class="mermaid">
+flowchart TD
+    A["Usuário navega para uma rota"] --> B{"Rota protegida por ProtectedRoute?"}
+
+    B -- "Não (rotas abertas)" --> C["Renderiza componente diretamente"]
+    B -- "Sim" --> D["ProtectedRoute recebe screenId"]
+
+    D --> E["useAccessControl verifica canAccessScreen(screenId)"]
+    E --> F{"ACL carregando?"}
+    F -- Sim --> G["Exibe Loader (spinner)"]
+    F -- Não --> H{"canAccessScreen == true?"}
+
+    H -- Sim --> I["✅ Renderiza componente"]
+    H -- Não --> J["🚫 Navigate to '/' (redirect)"]
+
+    subgraph "Rotas Abertas"
+        R1["/ — Dashboard"]
+        R2["/tasks — Minhas Tarefas"]
+        R3["/checkins — Check-ins"]
+        R4["/profile — Perfil"]
+        R5["/notifications — Notificações"]
+    end
+
+    subgraph "Rotas Protegidas (ACL)"
+        P1["/control — Gestão de Tarefas"]
+        P2["/teams — Equipes"]
+        P3["/projects — Projetos"]
+        P4["/users — Usuários"]
+        P5["/settings — Configurações"]
+        P6["/seed — Seed Data"]
+    end
+
+    style I fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style J fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 6: SIDEBAR E MOBILE NAV
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">6. Sidebar e Navegação Mobile</h2>
+  <p class="section-subtitle">Visibilidade de menus por ACL e configuração do Screen Registry</p>
+
+  <div class="diagram-block">
+    <h3>Renderização da Sidebar</h3>
+    <div class="mermaid">
+flowchart TD
+    A["SCREEN_REGISTRY define todas as telas"] --> B["getSidebarScreens (filter: sidebar == true)"]
+    B --> C["Ordena por 'order' ASC"]
+    C --> D["Para cada tela:"]
+    D --> E{"canAccessScreen(screenId)?"}
+    E -- Sim --> F["Exibe item no menu"]
+    E -- Não --> G["Oculta item"]
+    F --> H{"dividerBefore == true?"}
+    H -- Sim --> I["Renderiza separador antes"]
+    H -- Não --> J["Sem separador"]
+
+    subgraph "Telas na Sidebar"
+        S1["1. Dashboard (sidebar: ✅ mobile: ✅)"]
+        S2["2. Minhas Tarefas (sidebar: ✅ mobile: ✅)"]
+        S3["3. Check-ins (sidebar: ✅ mobile: ❌)"]
+        S4["4. Gestão de Tarefas (sidebar: ✅ mobile: ✅) ── divider"]
+        S5["5. Equipes (sidebar: ✅ mobile: ❌)"]
+        S6["6. Projetos (sidebar: ✅ mobile: ❌)"]
+        S7["7. Usuários (sidebar: ✅ mobile: ❌)"]
+    end
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>Bottom Nav Mobile</h3>
+    <div class="mermaid">
+flowchart LR
+    A["getMobileScreens (filter: mobile == true)"] --> B["Dashboard"]
+    A --> C["Minhas Tarefas"]
+    A --> D["Gestão de Tarefas"]
+    </div>
+    <div class="note-box">
+      <strong>Apenas 3 telas</strong> aparecem no bottom nav mobile: Dashboard, Minhas Tarefas e Gestão de Tarefas.<br>
+      Todas ainda passam pela verificação ACL — se o usuário não tem permissão, o item é oculto.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 7: FLUXO DE TAREFAS (KANBAN)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">7. Fluxo de Tarefas (Kanban)</h2>
+  <p class="section-subtitle">Status columns e permissões de ações</p>
+
+  <div class="diagram-block">
+    <h3>Ciclo de Vida de uma Tarefa</h3>
+    <div class="mermaid">
+flowchart LR
+    A["TODO<br>A Fazer"] -->|"tasks.move_status"| B["IN_PROGRESS<br>Em Andamento"]
+    B -->|"tasks.move_status"| C["UNDER_REVIEW<br>Em Avaliação"]
+    C -->|"tasks.move_status"| D["DONE<br>Concluído"]
+    C -->|"Reprovar"| B
+    D -.->|"Reabrir"| A
+
+    style A fill:#f8fafc,stroke:#0f172a,stroke-width:3px,color:#0f172a
+    style B fill:#fef9c3,stroke:#eab308,stroke-width:3px,color:#713f12
+    style C fill:#dbeafe,stroke:#3b82f6,stroke-width:3px,color:#1e3a5f
+    style D fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#14532d
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>Permissões de Tarefas por Role</h3>
+    <table>
+      <tr>
+        <th>Permissão</th>
+        <th>Descrição</th>
+        <th>Admin</th>
+        <th>Gerente</th>
+        <th>User</th>
+      </tr>
+      <tr>
+        <td><code>tasks.create</code></td><td>Criar tarefas</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td>
+      </tr>
+      <tr>
+        <td><code>tasks.edit_own</code></td><td>Editar próprias tarefas</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td>
+      </tr>
+      <tr>
+        <td><code>tasks.edit_all</code></td><td>Editar qualquer tarefa</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td>
+      </tr>
+      <tr>
+        <td><code>tasks.delete</code></td><td>Excluir tarefas</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td>
+      </tr>
+      <tr>
+        <td><code>tasks.assign</code></td><td>Atribuir tarefas a outros</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td>
+      </tr>
+      <tr>
+        <td><code>tasks.move_status</code></td><td>Mover status (Kanban)</td>
+        <td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PÁGINA 8: MATRIZ COMPLETA DE PERMISSÕES
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">8. Matriz Completa de Permissões</h2>
+  <p class="section-subtitle">Todas as permissões RBAC padrão por Role</p>
+
+  <div class="diagram-block" style="padding: 24px;">
+    <h3>Navegação</h3>
+    <table>
+      <tr><th>ID</th><th>Descrição</th><th>Admin</th><th>Gerente</th><th>User</th></tr>
+      <tr><td>nav.dashboard</td><td>Ver Dashboard</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td></tr>
+      <tr><td>nav.dashboard.teams</td><td>Dashboard → Equipes</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.dashboard.projects</td><td>Dashboard → Projetos</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.dashboard.users</td><td>Dashboard → Usuários</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.tasks</td><td>Minhas Tarefas</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td></tr>
+      <tr><td>nav.checkins</td><td>Check-ins</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td></tr>
+      <tr><td>nav.control</td><td>Gestão de Tarefas</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.teams</td><td>Equipes</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.projects</td><td>Projetos</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td></tr>
+      <tr><td>nav.users</td><td>Usuários</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.notifications</td><td>Central de Notificações</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>nav.settings</td><td>Configurações</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+    </table>
+
+    <h3 style="margin-top:24px;">Equipes</h3>
+    <table>
+      <tr><th>ID</th><th>Descrição</th><th>Admin</th><th>Gerente</th><th>User</th></tr>
+      <tr><td>teams.view</td><td>Ver equipes</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>teams.create</td><td>Criar equipes</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>teams.edit</td><td>Editar equipes</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>teams.delete</td><td>Excluir equipes</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>teams.add_member</td><td>Adicionar membros</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+    </table>
+
+    <h3 style="margin-top:24px;">Projetos</h3>
+    <table>
+      <tr><th>ID</th><th>Descrição</th><th>Admin</th><th>Gerente</th><th>User</th></tr>
+      <tr><td>projects.view</td><td>Ver projetos</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td></tr>
+      <tr><td>projects.create</td><td>Criar projetos</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>projects.edit</td><td>Editar projetos</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>projects.delete</td><td>Excluir projetos</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+    </table>
+
+    <h3 style="margin-top:24px;">Usuários, Relatórios e Notificações</h3>
+    <table>
+      <tr><th>ID</th><th>Descrição</th><th>Admin</th><th>Gerente</th><th>User</th></tr>
+      <tr><td>users.view</td><td>Ver lista de usuários</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>users.create</td><td>Criar usuários</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>users.edit_role</td><td>Alterar cargo/role</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>users.disable</td><td>Desativar usuários</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>logs.view</td><td>Ver logs de acesso</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>logs.delete</td><td>Apagar logs</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>reports.view</td><td>Ver relatórios</td><td class="perm-yes">✅</td><td class="perm-yes">✅</td><td class="perm-no">❌</td></tr>
+      <tr><td>notif.send</td><td>Enviar notificações</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+      <tr><td>notif.view_all</td><td>Ver todas as notificações</td><td class="perm-yes">✅</td><td class="perm-no">❌</td><td class="perm-no">❌</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 9: DADOS EM TEMPO REAL (FIRESTORE)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">9. Dados em Tempo Real (Firestore)</h2>
+  <p class="section-subtitle">AccessControlContext — Fontes de dados e sincronização</p>
+
+  <div class="diagram-block">
+    <h3>Fluxo de Carregamento ACL</h3>
+    <div class="mermaid">
+flowchart TD
+    A["App inicia com usuário autenticado"] --> B["AccessControlProvider monta"]
+    B --> C["Inicia 2 subscriptions simultâneas"]
+
+    C --> D["onSnapshot: settings/rolePermissions"]
+    C --> E["onSnapshot: collection rules/"]
+
+    D --> F["Atualiza state: rolePermissions"]
+    E --> G["Atualiza state: screenRules"]
+
+    F --> H{"Ambos carregados?"}
+    G --> H
+    H -- Não --> I["aclLoading = true"]
+    H -- Sim --> J["aclLoading = false"]
+    J --> K["useAccessControl disponível para uso"]
+
+    subgraph "Firestore Collections"
+        FS1["📄 settings/rolePermissions<br>Mapa: permKey → Role → bool"]
+        FS2["📁 rules/ (collection)<br>Cada doc = 1 regra dinâmica"]
+    end
+
+    D -.-> FS1
+    E -.-> FS2
+
+    style K fill:#dcfce7,stroke:#16a34a,color:#14532d
+    </div>
+
+    <div class="note-box">
+      <strong>Real-time:</strong> Qualquer edição nas permissões ou regras do Firestore reflete instantaneamente em todos os clientes conectados, sem necessidade de refresh.<br>
+      <strong>Cleanup:</strong> As subscriptions são removidas quando o componente desmonta ou o <code>user.uid</code> muda.
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>Estrutura de uma Regra (Firestore doc)</h3>
+    <div class="mermaid">
+flowchart LR
+    R["Documento Rule"] --> ID["id: string (auto)"]
+    R --> NM["name: 'Bloquear User em Settings'"]
+    R --> DS["description: 'Texto livre'"]
+    R --> AC["active: true/false"]
+    R --> PR["priority: 10 (menor = maior prior.)"]
+    R --> CT["conditionType: AND / OR"]
+    R --> CO["conditions: Condition[]"]
+    R --> AT["action: type + target"]
+
+    CO --> C1["field: 'user.role'<br>operator: '=='<br>value: 'User'"]
+    CO --> C2["field: 'screen'<br>operator: '=='<br>value: 'screen:settings'"]
+
+    AT --> AT1["type: 'deny'"]
+    AT --> AT2["target: 'screen'"]
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLUXOGRAMA 10: VALIDAÇÃO DE REGRAS
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="section-title">10. Validação de Regras</h2>
+  <p class="section-subtitle">Função validateRule — Checagem antes de salvar</p>
+
+  <div class="diagram-block">
+    <h3>Fluxo de Validação</h3>
+    <div class="mermaid">
+flowchart TD
+    A["validateRule(rule)"] --> B{"rule.id existe?"}
+    B -- Não --> ERR1["❌ 'id é obrigatório'"]
+    B -- Sim --> C{"rule.name existe?"}
+    C -- Não --> ERR2["❌ 'name é obrigatório'"]
+    C -- Sim --> D{"rule.action.type existe?"}
+    D -- Não --> ERR3["❌ 'action.type é obrigatório'"]
+    D -- Sim --> E{"action.type in ['allow','deny','neutral']?"}
+    E -- Não --> ERR4["❌ 'action.type inválido'"]
+    E -- Sim --> F{"conditionType in ['AND','OR']?"}
+    F -- Não --> ERR5["❌ 'conditionType inválido'"]
+    F -- Sim --> G{"conditions.length > 0?"}
+    G -- Não --> ERR6["❌ 'Pelo menos 1 condition necessária'"]
+    G -- Sim --> OK["✅ Regra válida (errors = [])"]
+
+    ERR1 --> COLLECT["Coleta todos os erros"]
+    ERR2 --> COLLECT
+    ERR3 --> COLLECT
+    ERR4 --> COLLECT
+    ERR5 --> COLLECT
+    ERR6 --> COLLECT
+    COLLECT --> RET["Retorna string[] de erros"]
+
+    style OK fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style ERR1 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ERR2 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ERR3 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ERR4 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ERR5 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ERR6 fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    </div>
+
+    <div class="note-box">
+      <strong>A validação é não-curto-circuitante:</strong> Todos os erros são coletados e retornados de uma vez, permitindo exibir todos os problemas ao administrador num único feedback.
+    </div>
+  </div>
+
+  <div class="diagram-block">
+    <h3>createRule — Valores Padrão</h3>
+    <table>
+      <tr><th>Campo</th><th>Valor Padrão</th></tr>
+      <tr><td><code>id</code></td><td>crypto.randomUUID()</td></tr>
+      <tr><td><code>name</code></td><td>"Nova Regra"</td></tr>
+      <tr><td><code>description</code></td><td>"" (vazio)</td></tr>
+      <tr><td><code>active</code></td><td>true</td></tr>
+      <tr><td><code>priority</code></td><td>100</td></tr>
+      <tr><td><code>conditionType</code></td><td>"AND"</td></tr>
+      <tr><td><code>conditions</code></td><td>[] (vazio)</td></tr>
+      <tr><td><code>action</code></td><td>{ type: "neutral", target: "*" }</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FIM
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'neutral',
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+      curve: 'basis',
+      padding: 16,
+      nodeSpacing: 30,
+      rankSpacing: 40,
+    },
+    themeVariables: {
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '13px',
+      primaryColor: '#e0e7ff',
+      primaryBorderColor: '#6366f1',
+      primaryTextColor: '#1e1b4b',
+      lineColor: '#94a3b8',
+      secondaryColor: '#f1f5f9',
+      tertiaryColor: '#fef3c7',
+    }
+  });
+</script>
+</body>
+</html>
