@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Users, User, LayoutGrid, List, ChevronRight, ChevronDown, CheckCircle2, Clock, AlertTriangle, X, Plus, Pencil, Trash2, BellRing } from 'lucide-react';
+import { isAdmin as _isAdmin, isProjectManager, isTeamLeader } from '../utils/roles';
 
 const STATUS_COLUMNS = [
   { id: 'TODO', title: 'A Fazer', color: '#000000', dotClass: 'bg-black' },
@@ -80,7 +81,7 @@ export default function TaskControl({ user }) {
       }
 
       if (newStatus === 'UNDER_REVIEW' && oldStatus !== 'UNDER_REVIEW') {
-        const admins = users.filter(u => u.role === 'Admin');
+        const admins = users.filter(u => _isAdmin(u.role));
         for (const admin of admins) {
           await addDoc(collection(db, 'notifications'), { 
             to: admin.email, 
@@ -165,8 +166,8 @@ export default function TaskControl({ user }) {
     );
   };
 
-  const isAdminRole = user?.role === 'Admin';
-  const isManagerRole = user?.role === 'Gerente' || user?.role === 'Manager';
+  const isAdminRole = _isAdmin(user?.role);
+  const isManagerRole = isProjectManager(user?.role) || isTeamLeader(user?.role);
 
   // Teams that this user is allowed to see
   const visibleTeams = isAdminRole 

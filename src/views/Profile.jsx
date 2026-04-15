@@ -25,9 +25,10 @@ export default function Profile({ user }) {
   });
 
   useEffect(() => {
-    if (!user?.uid) return;
+    // Os documentos em 'users' usam email como ID (tanto demo quanto login real)
+    if (!user?.email) return;
 
-    const unsub = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+    const unsub = onSnapshot(doc(db, 'users', user.email), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setProfileData({
@@ -49,9 +50,11 @@ export default function Profile({ user }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!user?.email) return;
     setSaving(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
+      // Atualiza apenas — não cria documento novo
+      await updateDoc(doc(db, 'users', user.email), {
         ...profileData,
         updatedAt: new Date()
       });

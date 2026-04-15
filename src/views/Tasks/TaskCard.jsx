@@ -1,11 +1,11 @@
-import { Trash2, Pencil, ArrowLeft, ArrowRight, User, BellRing, Calendar, ChevronRight } from 'lucide-react';
+import { Trash2, Pencil, ArrowLeft, ArrowRight, User, BellRing, Calendar } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { isAdmin, isProjectManager, isTeamLeader } from '../../utils/roles';
 
 function TaskCard({ task, column, user, onDelete, onEdit, onUpdateStatus, onReview }) {
   const isOverdue = task.status !== 'DONE' && task.dueDate && new Date(task.dueDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
-  const cardBgClass = isOverdue ? 'bg-red-600 text-white border-red-700 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : column.cardClass;
   
-  const isManager = user?.role === 'Admin' || user?.role === 'Gerente' || user?.role === 'Manager';
+  const isManager = isAdmin(user?.role) || isProjectManager(user?.role) || isTeamLeader(user?.role);
 
   const today = new Date(); today.setHours(0,0,0,0);
   const due = task.dueDate ? new Date(task.dueDate) : null;

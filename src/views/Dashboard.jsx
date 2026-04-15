@@ -12,6 +12,7 @@ import SectionHeader from '../components/common/SectionHeader';
 import { cn } from '../utils/cn';
 import { LayoutDashboard, Users, Database, Shield, ListTodo, History, Eye, CheckCircle2, AlertTriangle, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { isAdmin as _isAdmin, isProjectManager, isTeamLeader } from '../utils/roles';
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Dashboard = ({ user }) => {
   const [teams, setTeams] = useState([]);
   const [expandedKpi, setExpandedKpi] = useState(null);
   
-  const isAdmin = user?.role?.toLowerCase() === 'admin' || user?.email === 'henrique@smartlab.com.br';
+  const isAdmin = _isAdmin(user?.role) || user?.email === 'henrique@smartlab.com.br';
   const container = useRef();
 
   useGSAP(() => {
@@ -65,7 +66,7 @@ const Dashboard = ({ user }) => {
   }, []);
 
   const teamPerformance = teams.map(team => {
-    const teamTasks = tasks.filter(t => t.teamId === team.name || t.teamId === team.id);
+    const teamTasks = tasks.filter(t => t.teamId === team.id);
     const todo = teamTasks.filter(t => t.status === 'TODO').length;
     const inProgress = teamTasks.filter(t => t.status === 'IN_PROGRESS').length;
     const done = teamTasks.filter(t => t.status === 'DONE').length;
@@ -124,7 +125,9 @@ const Dashboard = ({ user }) => {
           ) : list.map(t => (
             <div key={t.id} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-slate-200/60 hover:border-slate-300 transition-colors">
               <span className="font-medium text-slate-700 truncate mr-2" title={t.title}>{t.title}</span>
-              <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md shrink-0 uppercase tracking-tighter border border-slate-100">{t.projectName || 'Geral'}</span>
+              <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md shrink-0 uppercase tracking-tighter border border-slate-100">
+                {projects.find(p => p.id === t.projectId)?.name || t.projectName || 'Geral'}
+              </span>
             </div>
           ))}
         </div>
@@ -346,7 +349,9 @@ const Dashboard = ({ user }) => {
                         proj.progress > 80 ? 'bg-emerald-500' : proj.progress < 30 ? 'bg-red-500' : 'bg-smartlab-on-surface'
                       )} style={{ width: `${proj.progress || 0}%` }}></div>
                     </div>
-                    <span className="text-[10px] font-black mt-2 block text-smartlab-on-surface-variant uppercase tracking-tighter">{proj.progress || 0}% concluído</span>
+                    <span className="text-[10px] font-bold text-smartlab-on-surface-variant uppercase tracking-widest mt-1 block opacity-60 italic">
+                      {projects.find(p => p.id === proj.id)?.name || proj.name}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -373,7 +378,7 @@ const Dashboard = ({ user }) => {
     { id: 'users', label: 'Usuários', icon: 'manage_accounts', lucideIcon: Shield }
   ].filter(tab => {
     if (tab.id === 'users') return isAdmin;
-    if (tab.id === 'teams' || tab.id === 'projects') return isAdmin || user?.role === 'Gerente';
+    if (tab.id === 'teams' || tab.id === 'projects') return isAdmin || isProjectManager(user?.role) || isTeamLeader(user?.role);
     return true;
   }), [isAdmin, user?.role]);
 

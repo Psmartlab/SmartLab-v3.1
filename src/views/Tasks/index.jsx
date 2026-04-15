@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import { Plus, AlertCircle, Loader2, CheckCircle2, Clock, Eye, ListTodo } from 'lucide-react';
+import { isAdmin as _isAdmin, isProjectManager, isTeamLeader } from '../../utils/roles';
 import SectionHeader from '../../components/common/SectionHeader';
 import KpiCard from '../../components/common/KpiCard';
 import { cn } from '../../utils/cn';
@@ -46,7 +47,7 @@ export default function Tasks({ user }) {
       setTaskData({ 
         title: '', description: '', priority: 'Media', status, 
         startDate: new Date().toISOString().split('T')[0], 
-        dueDate: '', assignee: user?.role === 'User' ? user.email : (user?.email || ''), teamId: '', projectId: '' 
+        dueDate: '', assignee: user?.email || '', teamId: '', projectId: '' 
       });
     }
     setIsModalOpen(true);
@@ -80,7 +81,7 @@ export default function Tasks({ user }) {
   };
 
   const updateStatus = async (taskId, newStatus, title) => {
-    const isManager = user?.role === 'Admin' || user?.role === 'Gerente' || user?.role === 'Manager';
+    const isManager = _isAdmin(user?.role) || isProjectManager(user?.role) || isTeamLeader(user?.role);
     let finalStatus = (newStatus === 'DONE' && !isManager) ? 'UNDER_REVIEW' : newStatus;
     
     await updateDoc(doc(db, 'tasks', taskId), { status: finalStatus });
@@ -88,7 +89,7 @@ export default function Tasks({ user }) {
     
     if (finalStatus === 'UNDER_REVIEW') {
       alert("Enviado para avaliação!");
-      const admins = users.filter(u => u.role === 'Admin');
+      const admins = users.filter(u => _isAdmin(u.role));
       for (const admin of admins) {
         await addDoc(collection(db, 'notifications'), { 
           to: admin.email, 

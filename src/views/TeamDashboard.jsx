@@ -26,7 +26,7 @@ export default function TeamDashboard() {
 
   // Team performance table
   const teamPerformance = teams.map(team => {
-    const teamTasks = tasks.filter(t => t.teamId === team.name || t.teamId === team.id);
+    const teamTasks = tasks.filter(t => t.teamId === team.id);
     const todo = teamTasks.filter(t => t.status === 'TODO').length;
     const inProgress = teamTasks.filter(t => t.status === 'IN_PROGRESS').length;
     const done = teamTasks.filter(t => t.status === 'DONE').length;
