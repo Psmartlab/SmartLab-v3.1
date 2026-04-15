@@ -8,16 +8,9 @@ import {
   AlertCircle, Clock, User, Flag, BarChart2
 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { normalizeRole, isAdmin as _isAdmin, isProjectManager, isTeamLeader } from '../utils/roles';
 
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-const normalizeRole = (role) => {
-  const r = (role || '').toLowerCase();
-  if (r === 'admin' || r === 'administrador') return 'Admin';
-  if (r === 'gerente de projeto' || r === 'project manager') return 'Gerente de Projeto';
-  if (r === 'gerente' || r === 'manager' || r === 'gestor' || r === 'líder de equipe' || r === 'lider de equipe') return 'Líder de Equipe';
-  return 'Colaborador';
-};
+// ─── constants ─────────────────────────────────────────────────────────────
 
 const LEVEL_CONFIG = [
   { label: 'Projeto',    icon: Briefcase,   color: 'text-violet-500',  bar: '#7c3aed', dot: 'bg-violet-500',  indent: 0  },
@@ -156,9 +149,8 @@ function buildColumns(start, end, zoom) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function Projects({ user }) {
-  const role = normalizeRole(user?.role);
-  const canWrite  = role === 'Admin' || role === 'Gerente de Projeto';
-  const canAssign = role === 'Líder de Equipe';
+  const canWrite  = isProjectManager(user?.role) || _isAdmin(user?.role);
+  const canAssign = isTeamLeader(user?.role);
 
   const [items, setItems]         = useState([]);
   const [allUsers, setAllUsers]   = useState([]);

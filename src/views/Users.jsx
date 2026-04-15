@@ -3,15 +3,7 @@ import { collection, query, onSnapshot, doc, updateDoc, setDoc, where, getDocs, 
 import { auth, db } from '../firebase';
 import { Shield, Clock, Search, Edit2, History, X, UserPlus, FileText, Crown, Users as UsersIcon, User, ChevronRight, Lock, Briefcase } from 'lucide-react';
 import { cn } from '../utils/cn';
-
-// Normaliza qualquer variante de cargo para os 4 cânones
-const normalizeRole = (role) => {
-  const r = (role || '').toLowerCase();
-  if (r === 'admin' || r === 'administrador') return 'Admin';
-  if (r === 'gerente de projeto' || r === 'project manager') return 'Gerente de Projeto';
-  if (r === 'gerente' || r === 'manager' || r === 'gestor' || r === 'líder de equipe' || r === 'lider de equipe') return 'Líder de Equipe';
-  return 'Colaborador'; // Membro, User, Colaborador, vazio etc.
-};
+import { normalizeRole, isAdmin as _isAdmin, isProjectManager, isTeamLeader } from '../utils/roles';
 
 // Hierarquia e estilos por nível
 const HIERARCHY = [
@@ -135,9 +127,9 @@ export default function Users({ user }) {
       u.email?.toLowerCase().includes(searchTerm.toLowerCase());
     if (!matchesSearch) return false;
     // Admin vê todos
-    if (user?.role?.toLowerCase() === 'admin') return true;
+    if (_isAdmin(user?.role)) return true;
     // Gerente de Projeto e Líder de Equipe veem quem está em suas equipes
-    if (['gerente de projeto', 'project manager', 'gerente', 'manager', 'gestor', 'líder de equipe', 'lider de equipe'].includes(user?.role?.toLowerCase())) {
+    if (isProjectManager(user?.role) || isTeamLeader(user?.role)) {
       return (u.teamIds || []).some(tid => (user.teamIds || []).includes(tid));
     }
     // Outros veem apenas a si mesmos

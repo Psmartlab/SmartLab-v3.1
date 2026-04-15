@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { UserPlus, Trash2, Loader2, X, Crown, Users as UsersIcon, Mail, Shield, Settings, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { cn } from '../utils/cn';
+import { normalizeRole, isAdmin as _isAdmin, isTeamLeader } from '../utils/roles';
 
 export default function Teams({ user }) {
   const location = useLocation();
@@ -19,7 +20,8 @@ export default function Teams({ user }) {
   const [inviteEmail, setInviteEmail] = useState('');
   const [editingTeam, setEditingTeam] = useState(null);
 
-  const isAdmin = ['admin', 'gerente', 'manager'].includes((user?.role || '').toLowerCase());
+  // Admin e Líder de Equipe têm permissão de gestão de equipes
+  const isAdmin = _isAdmin(user?.role) || isTeamLeader(user?.role);
 
   useEffect(() => {
     if (location.search.includes('action=new')) setIsModalOpen(true);
@@ -286,7 +288,7 @@ export default function Teams({ user }) {
                 <select value={newTeamManager} onChange={e => setNewTeamManager(e.target.value)}
                   className="bg-smartlab-surface-low border-2 border-smartlab-border rounded-2xl p-4 font-black text-xs text-smartlab-on-surface focus:border-smartlab-on-surface outline-none appearance-none cursor-pointer">
                   <option value="">Selecione um gerente...</option>
-                  {users.filter(u => ['gerente', 'manager', 'admin'].includes((u.role || '').toLowerCase())).map(u => (
+                  {users.filter(u => _isAdmin(u.role) || isProjectManager(u.role) || isTeamLeader(u.role)).map(u => (
                     <option key={u.id} value={u.email}>{u.name || u.email}</option>
                   ))}
                   {users.length > 0 && <option disabled>──────────</option>}

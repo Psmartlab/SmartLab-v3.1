@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Bell, AlertTriangle, TrendingUp, Mail, Calendar, CheckCircle, Search, Filter, FileText, Send } from 'lucide-react';
+import { isAdmin as _isAdmin } from '../utils/roles';
 
 export default function Notifications({ user }) {
   const [tasks, setTasks] = useState([]);
@@ -52,7 +53,7 @@ export default function Notifications({ user }) {
     alert("Mensagens de alerta enviadas para responsáveis por tarefas atrasadas.");
   };
 
-  if (user?.role !== 'Admin' && user?.role !== 'admin') {
+  if (!_isAdmin(user?.role)) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-20 text-center gap-6">
         <div className="p-6 bg-red-50 text-red-500 rounded-[32px] border-2 border-red-100 shadow-lg">

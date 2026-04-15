@@ -9,6 +9,7 @@ import { cn } from '../utils/cn';
 export default function ProjectDashboard() {
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [teams, setTeams] = useState([]);
 
   useEffect(() => {
     const unsubProjects = onSnapshot(collection(db, 'projects'), (snapshot) => {
@@ -17,7 +18,10 @@ export default function ProjectDashboard() {
     const unsubTasks = onSnapshot(collection(db, 'tasks'), (snapshot) => {
       setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-    return () => { unsubProjects(); unsubTasks(); };
+    const unsubTeams = onSnapshot(collection(db, 'teams'), (snapshot) => {
+      setTeams(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => { unsubProjects(); unsubTasks(); unsubTeams(); };
   }, []);
 
   const today = new Date();
@@ -29,7 +33,7 @@ export default function ProjectDashboard() {
 
   // Project progress table
   const projectProgress = projects.map(proj => {
-    const projTasks = tasks.filter(t => t.projectId === proj.name || t.projectId === proj.id);
+    const projTasks = tasks.filter(t => t.projectId === proj.id);
     const done = projTasks.filter(t => t.status === 'DONE').length;
     const total = projTasks.length;
     const overdue = projTasks.filter(t => t.status !== 'DONE' && t.dueDate && new Date(t.dueDate) < today).length;
@@ -90,7 +94,9 @@ export default function ProjectDashboard() {
                       <div className="w-8 h-8 rounded-lg bg-smartlab-surface-low border border-smartlab-border flex items-center justify-center text-[10px] font-black text-accent shadow-sm">
                         {proj.teamId?.charAt(0).toUpperCase() || '—'}
                       </div>
-                      <span className="text-[11px] font-black text-smartlab-on-surface-variant uppercase tracking-tight">{proj.teamId || 'SEM ALOCAÇÃO'}</span>
+                      <span className="text-[11px] font-black text-smartlab-on-surface-variant uppercase tracking-tight">
+                        {teams.find(tm => tm.id === proj.teamId)?.name || proj.teamId || 'SEM ALOCAÇÃO'}
+                      </span>
                     </div>
                   </td>
                   <td className="px-10 py-8 text-center">

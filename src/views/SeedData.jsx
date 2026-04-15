@@ -102,14 +102,32 @@ const SeedData = () => {
 
       // 5. Check-ins
       const checkins = [
-        { userName: 'Ana Operacional (Demo)', email: 'usuario@smartlab.com.br', mood: 'Happy', accomplishment: 'Finalizei o CSS do dashboard', teamwork: 'Discuti com Henrique sobre o design', date: new Date().toISOString() },
-        { userName: 'Carlos Gerente (Demo)', email: 'gerente@smartlab.com.br', mood: 'Productive', accomplishment: 'Revisão das aprovações da semana', teamwork: 'Ajudei a Ana na sprint', date: new Date().toISOString() }
+        { 
+          userId: 'usuario@smartlab.com.br',
+          userName: 'Ana Operacional (Demo)', 
+          userEmail: 'usuario@smartlab.com.br', 
+          userPhoto: '',
+          mood: 5, 
+          accomplished: 'Finalizei a refatoração do layout do Dashboard e corrigi bugs de CSS.', 
+          planned: 'Iniciar a implementação do gráfico de Gantt v3.2.', 
+          blockers: 'Aguardando definição das cores finais do cliente.',
+        },
+        { 
+          userId: 'gerente@smartlab.com.br',
+          userName: 'Carlos Gerente (Demo)', 
+          userEmail: 'gerente@smartlab.com.br', 
+          userPhoto: '',
+          mood: 4, 
+          accomplished: 'Revisão geral das sprints e aprovação de PRs críticos.', 
+          planned: 'Reunião de alinhamento com os stakeholders.', 
+          blockers: 'Nenhum.',
+        }
       ];
 
       for (const c of checkins) {
         await addDoc(collection(db, 'checkins'), {
           ...c,
-          timestamp: serverTimestamp()
+          created_at: serverTimestamp()
         });
         addLog(`Check-in de ${c.userName} criado.`);
       }

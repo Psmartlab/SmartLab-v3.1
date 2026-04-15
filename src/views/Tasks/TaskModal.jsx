@@ -1,5 +1,6 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Calendar, Type, AlignLeft, Flag, Users, Database, Shield } from 'lucide-react';
+import { isAdmin as _isAdmin } from '../../utils/roles';
 
 function TaskModal({ isOpen, onClose, currentTask, taskData, setTaskData, onSubmit, teams, users, projects, currentUser }) {
   if (!isOpen) return null;
@@ -42,7 +43,7 @@ function TaskModal({ isOpen, onClose, currentTask, taskData, setTaskData, onSubm
               <select value={taskData.projectId || ''} onChange={e => setTaskData({...taskData, projectId: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none">
                 <option value="">Nenhum</option>
                 {(projects || []).filter(p => {
-                  if (currentUser?.role === 'Admin') return true;
+                  if (_isAdmin(currentUser?.role)) return true;
                   return (p.userIds || []).includes(currentUser?.id) || (p.owners || []).includes(currentUser?.id) || (p.owner === currentUser?.id);
                 }).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
@@ -52,7 +53,7 @@ function TaskModal({ isOpen, onClose, currentTask, taskData, setTaskData, onSubm
               <select value={taskData.teamId || ''} onChange={e => setTaskData({...taskData, teamId: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none">
                 <option value="">Nenhuma</option>
                 {teams.filter(t => {
-                  if (currentUser?.role === 'Admin') return true;
+                  if (_isAdmin(currentUser?.role)) return true;
                   return t.manager === currentUser?.email || (t.members || []).includes(currentUser?.email);
                 }).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
